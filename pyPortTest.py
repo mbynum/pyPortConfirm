@@ -51,39 +51,60 @@ def setup_logger(profile, level=logging.INFO,formatter='messageonly', output_dir
 
 
 class portTestTCPProtocol(Protocol):
-   def dataReceived(self, data):
-    data = data #+ ", " + str(self.transport.getPeer())
-    self.transport.write(data)
-    self.transport.loseConnection()
-   
-   def connectionMade(self): 
+    ''' Server TCP protocol for taking what is received from the client and tossing it back. '''
+    def dataReceived(self, data):
+        client = self.transport.getPeer().host
+        port = self.transport.getPeer().port
+        print "Data received from %s:%d: %s" % (client, port, data)
+        data = data + ", from %s:%d" % (client, port)
+        self.transport.write(data)
+        self.transport.loseConnection()
+
+    def connectionMade(self): 
         print "Connection from : ", self.transport.getPeer()
-        #self.transport.loseConnection() # terminate connection
 
 
 class portTestUDPProtocol(DatagramProtocol):
+    ''' Server UDP protocol for taking what is received from the client and tossing it back. '''
 
     def sendDatagram(self,datagram):
         self.transport.write(datagram)
     
 
-    def datagramReceived(self, datagram, host):
-        print 'Datagram received from: ', self.transport.getPeer()
-        datagram = datagram #+ ", " + str(self.transport.getPeer())
+    def datagramReceived(self, datagram, (client, port)):
+        print "Datagram received from: %s:%d" % (client, port)
+        datagram = datagram + ", from %s:%d" % (client, port)
         self.sendDatagram(datagram)
 
-class portTestClient(Protocol):
+class portTestTCPClient(Protocol):
+    ''' Client TCP protocol for Sending a message to a client and then checking to see if that's the message that is received. '''
+
     def connectionMade(self):
-        self.transport.write("Test!")
+        self.transport.write("[OK]")
 
     def dataReceived(self, data):
-        print("receive:", data)
+        client = self.transport.getPeer().host
+        port = self.transport.getPeer().port
+        print("Data received for connection to %s:%d: %s" % (client, port, data))
+        if data:
+            self.transport.loseConnection()
+
+
+class portTestUDPClient(DatagramProtocol):
+    ''' Client UDP protocol for Sending a message to a client and then checking to see if that's the message that is received. '''
+
+    def connectionMade(self):
+        self.transport.write("[OK]")
+
+    def dataReceived(self, data, (host, port)):
+        print("Datagram received from: %s:%d" % (host, port))
         if data:
             print "Server said: ", data
             self.transport.loseConnection()
 
+
 class portTestClientFactory(ClientFactory):
-    protocol = portTestClient
+    protocol = portTestTCPClient
 
     def clientConnectionFailed(self, connector, reason):
         print ("Connection failed:", reason.getErrorMessage())
@@ -94,21 +115,36 @@ class portTestClientFactory(ClientFactory):
 
 
 
-def protocol_runner(protocol,port,f):
-    
-    if protocol == "TCP":
-        f.protocol = portTestTCPProtocol
-        
-        try:
-            reactor.listenTCP(port,f)
-        except:
-            pass
+def protocol_runner(protocol, mode, port, f, server=None):
+    if mode == "server":
+        if protocol == "TCP":
+            f.protocol = portTestTCPProtocol
+            
+            try:
+                reactor.listenTCP(port,f)
+            except:
+                pass
+        else:
+            f.protocol = portTestUDPProtocol
+            try:
+                reactor.listenUDP(port,f)
+            except:
+                pass
     else:
-        f.protocol = portTestUDPProtocol
-        try:
-            reactor.listenUDP(port,f)
-        except:
-            pass
+        if protocol == "TCP":
+            f.protocol = portTestTCPClient
+
+            try: 
+                reactor.connectTCP(server, port, f)
+            except:
+                pass
+        else:
+            f.protocol = portTestUDPClient
+            try:
+                reactor.connectUDP(server, port, f)
+            except:
+                pass
+
 
 
 def run_server(profile):
@@ -121,7 +157,7 @@ def run_server(profile):
         if "%s/%s" % (protocol,port) in listeningPorts:
             pass
         else:    
-            protocol_runner(protocol,port,f)
+            protocol_runner(protocol, "server", port, f)
             listeningPorts.append("%s/%s" % (protocol,port))
             print "LISTENING %s/%s" % (protocol,port)
 
@@ -133,8 +169,8 @@ def run_client(profile,server):
         f = portTestClientFactory()
         port = int(i['DestinationPort'])
         protocol = i['Protocol']
-
-        reactor.connectTCP(server, port, f)
+        protocol_runner(protocol, "client", port, f, server)
+        #reactor.connectTCP(server, port, f)
     reactor.run()
 
 
