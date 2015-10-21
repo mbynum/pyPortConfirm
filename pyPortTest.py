@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from twisted.internet.protocol import Protocol,ServerFactory,DatagramProtocol
+from twisted.internet.protocol import Protocol,ServerFactory,ClientFactory,DatagramProtocol
 from twisted.internet import reactor
 
 import xml.etree.ElementTree as ET
@@ -52,7 +52,7 @@ def setup_logger(profile, level=logging.INFO,formatter='messageonly', output_dir
 
 class portTestTCPProtocol(Protocol):
    def dataReceived(self, data):
-    data = data + ", " + self.transport.getPeer()
+    data = data #+ ", " + str(self.transport.getPeer())
     self.transport.write(data)
     self.transport.loseConnection()
    
@@ -69,8 +69,29 @@ class portTestUDPProtocol(DatagramProtocol):
 
     def datagramReceived(self, datagram, host):
         print 'Datagram received from: ', self.transport.getPeer()
-        datagram = datagram + ", " + self.transport.getPeer()
+        datagram = datagram #+ ", " + str(self.transport.getPeer())
         self.sendDatagram(datagram)
+
+class portTestClient(Protocol):
+    def connectionMade(self):
+        self.transport.write("Test!")
+
+    def dataReceived(self, data):
+        print("receive:", data)
+        if data:
+            print "Server said: ", data
+            self.transport.loseConnection()
+
+class portTestClientFactory(ClientFactory):
+    protocol = portTestClient
+
+    def clientConnectionFailed(self, connector, reason):
+        print ("Connection failed:", reason.getErrorMessage())
+
+
+    def clientConnectionLost(self, connector, reason):
+        print("Connection lost:", reason.getErrorMessage())
+
 
 
 def protocol_runner(protocol,port,f):
@@ -91,8 +112,7 @@ def protocol_runner(protocol,port,f):
 
 
 def run_server(profile):
-    listeningPorts = []
-    
+    listeningPorts = [] 
     
     for i in profile['profile_ports']:
         f = ServerFactory()
@@ -104,17 +124,25 @@ def run_server(profile):
             protocol_runner(protocol,port,f)
             listeningPorts.append("%s/%s" % (protocol,port))
             print "LISTENING %s/%s" % (protocol,port)
-            
-    
 
+    reactor.run()
+
+
+def run_client(profile,server):
+    for i in profile['profile_ports']:
+        f = portTestClientFactory()
+        port = int(i['DestinationPort'])
+        protocol = i['Protocol']
+
+        reactor.connectTCP(server, port, f)
     reactor.run()
 
 
 profile = read_xml('application_map_SCOM2012R2.xml')
 
-run_server(profile)
+#run_server(profile)
 
-
+run_client(profile,'localhost')
 
 '''
 

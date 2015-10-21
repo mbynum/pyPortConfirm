@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ApplicationNetworkProfile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ApplicationName>SCOM</ApplicationName>
+	<Vendor>Microsoft</Vendor>
+	<Version>2012 R2</Version>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5724</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Operations console to SCOM Management server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>80</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Web console Server to SCOM Management server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>1433</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Web console (for Application Diagnostics) to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>1434</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Web console (for Application Diagnostics) to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>1433</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Web console (for Application Advisor) to Data warehouse Server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>1434</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Web console (for Application Advisor) to Data warehouse Server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>80</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Web console (for Application Advisor) to SQL Server Reporting Services</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>80</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Web console browser to Web Console Server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>443</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Web console browser to Web Console Server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5723</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Agent installed by using MOMAgent.msi to Management server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5723</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Agent installed by using MOMAgent.msi to Management server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5723</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Agent installed by using MOMAgent.msi to Gateway server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>51909</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Agent (Audit Collection Services (ACS) forwarder) to Management server Audit Collection Services (ACS) Collector</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Client</SourceSubnetType>
+		<SourcePort>Ephemeral</SourcePort>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>80</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Operations console (reports) to SQL Server Reporting Services</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>1433</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>UDP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>137</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>UDP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>138</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5985</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5986</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>445</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>135</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>UDP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5723</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5723</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>139</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to SCOM DB server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>UDP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>1434</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM DB server to SCOM Management server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5723</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management to SCOM Management</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5724</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management to SCOM Management</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>1433</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>SCOM Management server to Reporting data warehouse</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5723</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Reporting server to SCOM Management server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5724</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Reporting server to SCOM Management server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>51905</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Connector Framework source (Server) to SCOM Management Server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>5723</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Gateway server to Management server</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>51906</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Agentless Exception Monitoring data from client to Management server Agentless Exception Monitoring (AEM) file share</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>51907</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Customer Experience Improvement Program data from client to Management server (Customer Experience Improvement Program) Endpoint</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>1433</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Reporting server to Reporting data warehouse</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Server</DestinationSubnetType>
+		<DestinationPort>1433</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Management server (Audit Collection Services Collector) to Audit Collection Services (ACS) database</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Network device</DestinationSubnetType>
+		<DestinationPort>161</DestinationPort>
+		<Direction>Bi-directional</Direction>
+		<Description>Management Server to Network device</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Network device</DestinationSubnetType>
+		<DestinationPort>162</DestinationPort>
+		<Direction>Bi-directional</Direction>
+		<Description>Management Server to Network device</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Client</DestinationSubnetType>
+		<DestinationPort>1270</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Management server or gateway server to UNIX or Linux computer</Description>
+	</Entry>
+	<Entry>
+		<SourceSubnetType>Server</SourceSubnetType>
+		<Protocol>TCP</Protocol>
+		<DestinationSubnetType>Client</DestinationSubnetType>
+		<DestinationPort>22</DestinationPort>
+		<Direction>One-way</Direction>
+		<Description>Management server or gateway server to UNIX or Linux computer</Description>
+	</Entry>
+</ApplicationNetworkProfile>
