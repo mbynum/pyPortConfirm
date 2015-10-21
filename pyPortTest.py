@@ -3,7 +3,7 @@ from twisted.internet.protocol import Protocol,ServerFactory,ClientFactory,Datag
 from twisted.internet import reactor
 
 import xml.etree.ElementTree as ET
-import cmd2, logging
+import logging, argparse, sys
 
 def read_xml(xmlfile):
 	xmlfile = "application_map_SCOM2012R2.xml"
@@ -138,39 +138,57 @@ def run_client(profile,server):
     reactor.run()
 
 
-profile = read_xml('application_map_SCOM2012R2.xml')
 
-#run_server(profile)
 
-run_client(profile,'localhost')
-
-'''
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Softchoice pyPortConfirm for testing application port availability across a network')
+    parser = argparse.ArgumentParser(description='Softchoice pyPortTest for testing application port availability across a network')
     parser.add_argument('--appnetprofile','-a', nargs='?', metavar = 'FILENAME',
                         help='After this flag, provide the location of the application network profile: C:\\Users\\tempuser\\Desktop\\list.csv')
-    parser.add_argument('--server','-s', nargs='?', metavar = 'IPADDRESS',
-                       help='Specify a the destination (if this is being run in client mode) to establish connections to.')
+
     parser.add_argument('--verbose','-v', action='store_true',
                         help="Use this to provide more verbosity as output is generated.")
     parser.add_argument('--version','-V', action='store_true',
                         help = "Displays the current version.")
-    group2 = parser.add_mutually_exclusive_group()
-    group2.add_argument('--server','-s', action='store_true',
-                        help="Use this to provide more verbosity as output is generated.")
-    group2.add_argument('--client','-c', action='store_true',
-                        help="Use this to provide more verbosity as output is generated.")
-    
+    group1 = parser.add_mutually_exclusive_group()
+    group1.add_argument('--server','-s', action='store_true',
+                        help="Specifies that this instance of the script will use the application network profile and begin listening on ports.")
+    group1.add_argument('--client','-c', action='store_true',
+                        help="Specifies that this instance of the script will use the application network profile and attempt connections to a given server, with the expectation that it is being run from a client subnet.")
+    group1.add_argument('--clientserver','-cs', action='store_true',
+                        help="Specifies that this instance of the script will use the application network profile and attempt connections to a given server, but the expectation is that it is being run on a server subnet.")    
 
-    parser.add_argument('--mode','-m', nargs='?',default='privexec',choices=['privexec','config','testprivexec','testconfig','buildconfig'],
-                        help='Choose the command mode.  The main ptions are privexec or config, but you can also add the word test on the front of those to simulate what would happen with the other details you have provided.  Defaults to privexec.')
-    parser.add_argument('--largeoutput','-l', action='store_true',
-                        help='Set this if the output expected from a passed command is that of a full "show run" or "show tech".')
-    parser.add_argument('--interactive','-i', action='store_true',
-                       help='Use this to be prompted before every action.')
+    parser.add_argument('--target','-t', nargs='?', metavar = 'IPADDRESS',
+                       help='Specify a the destination (if this is being run in client mode) to establish connections to.')
+
+  
     args = parser.parse_args()
     print "\n"
 
- '''
+
+    if args.client and not args.target:
+        print "Please provide a target for the client to connect to."
+        sys.exit()
+    elif args.clientserver and not args.target:
+        print "Please provide a target for the client-server to connect to."
+        sys.exit()
+    elif args.server and args.target:
+        print "Target not needed for server mode, ignoring."
+
+    if args.appnetprofile:
+        profile = read_xml('application_map_SCOM2012R2.xml')
+    else:
+        print "Please provide an application network profile with the -a flag."
+        sys.exit()
+
+    if args.server:
+        run_server(profile)
+    elif args.client:
+        run_client(profile,args.target)
+    elif args.clientserver:
+        run_client(profile,args.target)
+    else:
+        print "Please provide the mode that you'd like the script to run in."
+
+
