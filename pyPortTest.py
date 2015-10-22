@@ -3,10 +3,20 @@ from twisted.internet.protocol import Protocol,ServerFactory,ClientFactory,Datag
 from twisted.internet import reactor
 
 import xml.etree.ElementTree as ET
-import logging, argparse, sys
+import logging, argparse, sys, atexit
+
+
+def singleton(givenClass):
+    instances = {}
+
+    def getInstance(*args, **kwargs):
+        if givenClass not in instances:
+            instances[givenClass] = givenClass(*args, **kwargs)
+        return instances[givenClass]
+    return getInstance
+
 
 def read_xml(xmlfile):
-	xmlfile = "application_map_SCOM2012R2.xml"
 
 	tree = ET.parse(xmlfile)
 	root = tree.getroot()
@@ -26,28 +36,31 @@ def read_xml(xmlfile):
 
 	return profile
 
-def setup_logger(profile, level=logging.INFO,formatter='messageonly', output_dir='', file_prefix='softchoice_', file_suffix='_report.csv'):
-    
-    logger_tag = profile['applicationName']
-    logger_name = profile['applicationName']+"_"+profile['version']
-    
 
-    logger = logging.getLogger(logger_name)
-    if not logger.handlers:
-        if formatter == 'default':
-            formatter = logging.Formatter('%(asctime)s : %(message)s',"%Y-%m-%d %H:%M:%S")
-        if formatter == 'messageonly':
-            formatter = logging.Formatter('%(message)s')
-        fileHandler = logging.FileHandler(output_dir + file_prefix + logger_name + file_suffix)
-        fileHandler.setFormatter(formatter)
-        streamHandler = logging.StreamHandler()
-        streamHandler.setFormatter(formatter)
-        logger.addHandler(fileHandler)
-        logger.addHandler(streamHandler)
+@singleton
+class portTestOutput(object):
 
-    logger.setLevel(level)
-    return logger_name, logger_tag, logging.getLogger(logger_name)
+    output = []
+    def stash(self,protocol,srcaddr,srcport,destaddr,dstport,result):
+        instance = {}
+        instance['protocol'] = protocol
+        instance['srcaddr'] = srcaddr
+        instance['srcport'] = srcport
+        instance['destaddr'] = destaddr
+        instance['dstport'] = dstport
+        instance['result'] = result
+        self.output.append(instance)
 
+    def write(self):
+        import csv
+
+        outputFile = "results.csv"
+        fieldnames = ['protocol','srcaddr','srcport','destaddr','dstport','result']
+        with open(outputFile,'wb') as csvfile:
+            writer = csv.DictWriter(csvfile, dialect='excel', fieldnames=fieldnames)
+            writer.writeheader()
+            for row in self.output:
+                writer.writerow(row)
 
 
 class portTestTCPProtocol(Protocol):
@@ -56,7 +69,7 @@ class portTestTCPProtocol(Protocol):
         client = self.transport.getPeer().host
         port = self.transport.getPeer().port
         print "Data received from %s:%d: %s" % (client, port, data)
-        data = data + ", from %s:%d" % (client, port)
+        data = "%s,%d,%s" % (client, port, data)
         self.transport.write(data)
         self.transport.loseConnection()
 
@@ -67,51 +80,79 @@ class portTestTCPProtocol(Protocol):
 class portTestUDPProtocol(DatagramProtocol):
     ''' Server UDP protocol for taking what is received from the client and tossing it back. '''
 
-    def sendDatagram(self,datagram):
-        self.transport.write(datagram)
-    
-
     def datagramReceived(self, datagram, (client, port)):
         print "Datagram received from: %s:%d" % (client, port)
-        datagram = datagram + ", from %s:%d" % (client, port)
-        self.sendDatagram(datagram)
+        datagram = "%s,%d,%s" % (client, port, datagram)
+        self.transport.write(datagram, (client,port))
+        print "Datagram sent to: %s:%d" % (client, port)
 
 class portTestTCPClient(Protocol):
     ''' Client TCP protocol for Sending a message to a client and then checking to see if that's the message that is received. '''
-
+    host = None
+    port = None
     def connectionMade(self):
         self.transport.write("[OK]")
 
     def dataReceived(self, data):
-        client = self.transport.getPeer().host
-        port = self.transport.getPeer().port
-        print("Data received for connection to %s:%d: %s" % (client, port, data))
-        if data:
-            self.transport.loseConnection()
+        logger = portTestOutput()
+        self.host = self.transport.getPeer().host
+        self.port = self.transport.getPeer().port
+        data = data.split(",")
+        if len(data) == 3:
+            if data[2] == "[OK]":
+                print("SUCCESS for TCP connection to %s:%d: %s" % (self.host, self.port, data))
+                logger.stash("TCP", data[0], data[1], self.host, self.port, data[2])
+                self.transport.loseConnection()
+        else:
+            print ("FAILED for TCP connection to %s:%d: %s" % (self.host, self.port, data))
+            logger.stash("TCP", "unknown", "unknown", self.host, self.port, "[FAILED]")
 
 
 class portTestUDPClient(DatagramProtocol):
     ''' Client UDP protocol for Sending a message to a client and then checking to see if that's the message that is received. '''
+    server = None
+    port = None
+    response = False
+    def startProtocol(self):
+        self.transport.connect(self.server, self.port)
+        self.sendDatagram()
 
-    def connectionMade(self):
+    def stopProtocol(self):
+        if self.response:
+            pass
+        else:
+            logger.stash("UDP", "unknown", "unknown", self.server, self.port, "[FAILED]")
+
+    def sendDatagram(self):
         self.transport.write("[OK]")
 
-    def dataReceived(self, data, (host, port)):
-        print("Datagram received from: %s:%d" % (host, port))
-        if data:
-            print "Server said: ", data
-            self.transport.loseConnection()
+    def datagramReceived(self, data, (host, port)):
+        self.response = True
+        data = data.split(",")
+        if len(data) == 3:
+            if data[2] == "[OK]":
+                print("SUCCESS for UDP connection to %s:%d: %s" % (host, port, data))
+                logger.stash("UDP", data[0], data[1], host, port, data[2])
+                self.transport.loseConnection()
+        else:
+            print ("FAILED for UDP connection to %s:%d: %s" % (host, port, data))
+            logger.stash("UDP", "unknown", "unknown", host, port, "[FAILED]")
+
 
 
 class portTestClientFactory(ClientFactory):
     protocol = portTestTCPClient
 
     def clientConnectionFailed(self, connector, reason):
-        print ("Connection failed:", reason.getErrorMessage())
+        print ("Connection failed to %s:%s, %s" % (connector.host, connector.port, reason.getErrorMessage()))
+        logger.stash("TCP", "unknown", "unknown", connector.host, connector.port, "[FAILED]")
 
 
     def clientConnectionLost(self, connector, reason):
-        print("Connection lost:", reason.getErrorMessage())
+        if reason.getErrorMessage() == 'Connection was closed cleanly.':
+            pass
+        else:
+            print("Connection lost:", reason.getErrorMessage())
 
 
 
@@ -125,12 +166,14 @@ def protocol_runner(protocol, mode, port, f, server=None):
             except:
                 pass
         else:
-            f.protocol = portTestUDPProtocol
+            udpInstance = portTestUDPProtocol()
             try:
-                reactor.listenUDP(port,f)
+                reactor.listenUDP(port,udpInstance)
             except:
+            #    print Exception
                 pass
     else:
+        #This should catch the CLIENT mode
         if protocol == "TCP":
             f.protocol = portTestTCPClient
 
@@ -139,11 +182,15 @@ def protocol_runner(protocol, mode, port, f, server=None):
             except:
                 pass
         else:
-            f.protocol = portTestUDPClient
+            #f.protocol = portTestUDPClient
+            udpInstance = portTestUDPClient()
+            udpInstance.port = port
+            udpInstance.server = server
             try:
-                reactor.connectUDP(server, port, f)
-            except:
-                pass
+                reactor.listenUDP(0, udpInstance)
+            except Exception as e:
+                print "Error! %s" % (e)
+                
 
 
 
@@ -170,15 +217,16 @@ def run_client(profile,server):
         port = int(i['DestinationPort'])
         protocol = i['Protocol']
         protocol_runner(protocol, "client", port, f, server)
-        #reactor.connectTCP(server, port, f)
+
     reactor.run()
 
 
 
 
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
+    logger = portTestOutput()
     parser = argparse.ArgumentParser(description='Softchoice pyPortTest for testing application port availability across a network')
     parser.add_argument('--appnetprofile','-a', nargs='?', metavar = 'FILENAME',
                         help='After this flag, provide the location of the application network profile: C:\\Users\\tempuser\\Desktop\\list.csv')
@@ -203,6 +251,7 @@ if __name__ == "__main__":
     print "\n"
 
 
+
     if args.client and not args.target:
         print "Please provide a target for the client to connect to."
         sys.exit()
@@ -213,7 +262,7 @@ if __name__ == "__main__":
         print "Target not needed for server mode, ignoring."
 
     if args.appnetprofile:
-        profile = read_xml('application_map_SCOM2012R2.xml')
+        profile = read_xml(args.appnetprofile)
     else:
         print "Please provide an application network profile with the -a flag."
         sys.exit()
@@ -221,8 +270,10 @@ if __name__ == "__main__":
     if args.server:
         run_server(profile)
     elif args.client:
+        atexit.register(logger.write)
         run_client(profile,args.target)
     elif args.clientserver:
+        atexit.register(logger.write)
         run_client(profile,args.target)
     else:
         print "Please provide the mode that you'd like the script to run in."
